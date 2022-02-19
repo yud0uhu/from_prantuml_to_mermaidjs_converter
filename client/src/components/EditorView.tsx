@@ -1,11 +1,25 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchConverter } from "../action/api";
-import ReactMarkdown from "react-markdown";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { marked } from "marked";
+import highlightjs from "highlight.js";
+import { SimpleMdeReact } from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 export function EditorView() {
-  const [conv, setConv] = useState("");
+  marked.setOptions({
+    renderer: new marked.Renderer(),
+    highlight: function (code, lang) {
+      return highlightjs.highlightAuto(code, [lang]).value;
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  });
   const urls = null;
   const text = `@startuml
   participant Participant as Foo
@@ -16,7 +30,7 @@ export function EditorView() {
   database    Database    as Foo5
   collections Collections as Foo6
   queue       Queue       as Foo7
-  Foo -> Foo1 : To actor 
+  Foo -> Foo1 : To actor
   Foo -> Foo2 : To boundary
   Foo -> Foo3 : To control
   Foo -> Foo4 : To entity
@@ -24,36 +38,20 @@ export function EditorView() {
   Foo -> Foo6 : To collections
   Foo -> Foo7: To queue
   @enduml
-  `;
+    `;
+  const [conv, setConv] = useState(text);
 
-  useEffect(() => {
-    fetchConverter(text).then((urls) => {
-      //   console.log(urls);
+  const onChange = useCallback((value: string) => {
+    fetchConverter(value).then((urls) => {
       setConv(urls);
     });
   }, []);
 
   return (
-    <ReactMarkdown
-      children={conv}
-      components={{
-        code({ node, inline, className, children, ...props }) {
-          const match = /language-(\w+)/.exec(className || "");
-          return !inline && match ? (
-            <SyntaxHighlighter
-              children={String(children).replace(/\n$/, "")}
-              style={docco}
-              language={match[1]}
-              PreTag="div"
-              {...props}
-            />
-          ) : (
-            <code className={className} {...props}>
-              {children}
-            </code>
-          );
-        },
-      }}
-    />
+    <section>
+      <SimpleMdeReact value={conv} onChange={onChange} />
+      <h1>Convert Preview</h1>
+      <p>{conv}</p>
+    </section>
   );
 }

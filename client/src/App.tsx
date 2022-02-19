@@ -2,7 +2,11 @@ import "./App.css";
 import { EditorView } from "./components/EditorView";
 
 function App() {
-  return <EditorView />;
+  return (
+    <div>
+      <EditorView />
+    </div>
+  );
 }
 
 export default App;
