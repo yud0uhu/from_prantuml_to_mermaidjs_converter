@@ -1,18 +1,22 @@
 package main
 
-
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
+    "strings"
+	"os"
+	"bufio"
 )
 
-// ファイルの全データを一度に読み込む
 func main() {
-	content, err := ioutil.ReadFile("plantUML.txt")
-	if err != nil {
-		log.Fatal(err)
+	// 一行ずつ読み込み
+	data, _ :=  os.Open("plantUML.txt")
+	defer data.Close()
+	scanner := bufio.NewScanner(data)
+	for scanner.Scan(){
+		// fmt.Println(scanner.Text())
+		r := strings.NewReplacer("->", "-->")
+		resStr := r.Replace(scanner.Text())
+		fmt.Println(resStr)
 	}
 
-	fmt.Printf("File contents: %s", content)
 }
