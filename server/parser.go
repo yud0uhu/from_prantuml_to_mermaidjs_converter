@@ -7,9 +7,10 @@ import (
 	"bufio"
 )
 
-func main() {
+func fileParser() {
 	// PlantUMLをsequenceDiagramに置換する
 	// テキストファイルの文字列を一行ずつ読み込む
+
 	data, _ :=  os.Open("plantUML.txt")
 	defer data.Close()
 	scanner := bufio.NewScanner(data)
@@ -23,4 +24,13 @@ func main() {
 		fmt.Println(resStr)
 	}
 
+}
+
+func textParser(str string) string {
+
+	r := strings.NewReplacer("@startuml","sequenceDiagram","->","-->","boundary","participant","control","participant","entity","participant","database","participant","collections","participant","queue","participant","@enduml","")
+
+	resStr := r.Replace(str)
+
+	return resStr
 }
