@@ -21,7 +21,9 @@ export function EditorView() {
     xhtml: false,
   });
   const urls = null;
-  const text = `@startuml
+  const text = `
+  marmaid
+  @startuml
   participant Participant as Foo
   actor       Actor       as Foo1
   boundary    Boundary    as Foo2
@@ -42,9 +44,12 @@ export function EditorView() {
   const [conv, setConv] = useState(text);
 
   const onChange = useCallback((value: string) => {
-    fetchConverter(value).then((urls) => {
-      setConv(urls);
-    });
+    // 文字列に「marmaid」が含まれていた場合APIを叩く
+    if (value.match(/marmaid/g))
+      fetchConverter(value).then((urls) => {
+        setConv(urls);
+        console.log("convert");
+      });
   }, []);
 
   return (
